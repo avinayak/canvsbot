@@ -32,9 +32,10 @@ def pascal_row(n):
         result.extend(reversed(result)) 
     return result
 
-def draw_bezier(xyz,thick,draw):
-    ts = [t/100.0 for t in range(101)]
-    bezier = make_bezier(xyz)
-    points = bezier(ts)
-    for p in range(len(points)-1):
-        draw.line([points[p],points[p+1]],fill=2,width=thick)
+# def draw_bezier(xyz,thick,draw):
+#     # ts = [t/100.0 for t in range(101)]
+#     # bezier = make_bezier(xyz)
+#     # points = bezier(ts)
+#     # for p in range(len(points)-1):
+#     #     draw.line([points[p],points[p+1]],fill=2,width=thick)
+#     draw.line([xyz[0],xyz[1]],fill=2,width=thick)

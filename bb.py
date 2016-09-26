@@ -5,22 +5,28 @@ import numpy as np
 import bezier
 import time
 
-N_CURVES = 50
-N_COLORS = 3
-MAX_THICKNESS = 2
+N_CURVES = 500
+N_COLORS = 100
+MAX_CURVE_RADIUS = 100
+MAX_BEZIER_ORDER = 2
+MAX_THICKNESS = 4
 WIDTH = 1000
 HEIGHT = 1000
-BORDER_FRAC = 2
-MAX_POPULATION = 40
-N_CHILD = MAX_POPULATION/2
+BORDER_FRAC = 200
+MAX_POPULATION = 150
+N_CHILD = MAX_POPULATION
 MUTATION_FACTOR = 0.01
+COLORSET = 128
 
 def draw_bezier(xyz,thick,col,draw):
-    ts = [t/100.0 for t in range(101)]
-    bz = bezier.make_bezier(xyz)
-    points = bz(ts)
-    for p in range(len(points)-1):
-        draw.line([points[p],points[p+1]],fill=col,width=thick)
+    if len(xyz)>2:
+        ts = [t/100.0 for t in range(101)]
+        bz = bezier.make_bezier(xyz)
+        points = bz(ts)
+        for p in range(len(points)-1):
+            draw.line([points[p],points[p+1]],fill=col,width=thick)
+    else:
+        draw.line([xyz[0],xyz[1]],fill=col,width=thick)
 
 def monte_carlo_dartboard(pool):
     dartboard = [0]
@@ -45,10 +51,18 @@ def cross(c1,c2,truth):
             child.curves.append(random.choice([c1,c2]).curves[i])
         else:
             curve={}
-            curve["points"] = [(random.randrange(-WIDTH/BORDER_FRAC,WIDTH+WIDTH/BORDER_FRAC),random.randrange(-HEIGHT/BORDER_FRAC,HEIGHT+HEIGHT/BORDER_FRAC)) for _ in range(random.randrange(2,19))]
+            max_len=random.randrange(2,MAX_CURVE_RADIUS)
+            curve["points"] = []
+            origin = (random.randrange(-WIDTH/BORDER_FRAC,WIDTH+WIDTH/BORDER_FRAC),random.randrange(-HEIGHT/BORDER_FRAC,HEIGHT+HEIGHT/BORDER_FRAC))
+            for j in range(random.randrange(1,MAX_BEZIER_ORDER)):
+                end = (origin[0]+random.uniform(-MAX_CURVE_RADIUS,MAX_CURVE_RADIUS),origin[1]+random.uniform(-MAX_CURVE_RADIUS,MAX_CURVE_RADIUS))
+                curve["points"].append(end)
+            curve["points"].append(origin)
+            #curve["points"] = [(random.randrange(-WIDTH/BORDER_FRAC,WIDTH+WIDTH/BORDER_FRAC),random.randrange(-HEIGHT/BORDER_FRAC,HEIGHT+HEIGHT/BORDER_FRAC)) for _ in range(random.randrange(2,MAX_BEZIER_ORDER))]
             curve["width"] = random.randrange(1,MAX_THICKNESS)
-            curve["color"] = int((64/N_COLORS+1)*random.randrange(0,N_COLORS))
+            curve["color"] = int((COLORSET/N_COLORS+1)*random.randrange(0,N_COLORS))
             child.curves.append(curve)
+    child.curves.sort(key=lambda x:x["width"], reverse=True)
     child.fitness = child.get_fitness(truth)
     return child
 
@@ -68,10 +82,18 @@ class CandidateImage():
     def random(self,truth):
         for _ in range(N_CURVES):
             curve={}
-            curve["points"] = [(random.randrange(-WIDTH/BORDER_FRAC,WIDTH+WIDTH/BORDER_FRAC),random.randrange(-HEIGHT/BORDER_FRAC,HEIGHT+HEIGHT/BORDER_FRAC)) for _ in range(random.randrange(2,19))]
+            max_len=random.randrange(2,MAX_CURVE_RADIUS)
+            curve["points"] = []
+            origin = (random.randrange(-WIDTH/BORDER_FRAC,WIDTH+WIDTH/BORDER_FRAC),random.randrange(-HEIGHT/BORDER_FRAC,HEIGHT+HEIGHT/BORDER_FRAC))
+            for j in range(random.randrange(1,MAX_BEZIER_ORDER)):
+                end = (origin[0]+random.uniform(-MAX_CURVE_RADIUS,MAX_CURVE_RADIUS),origin[1]+random.uniform(-MAX_CURVE_RADIUS,MAX_CURVE_RADIUS))
+                curve["points"].append(end)
+            curve["points"].append(origin)
+            #curve["points"] = [(random.randrange(-WIDTH/BORDER_FRAC,WIDTH+WIDTH/BORDER_FRAC),random.randrange(-HEIGHT/BORDER_FRAC,HEIGHT+HEIGHT/BORDER_FRAC)) for _ in range(random.randrange(2,MAX_BEZIER_ORDER))]
             curve["width"] = random.randrange(1,MAX_THICKNESS)
-            curve["color"] = int((64/N_COLORS+1)*random.randrange(0,N_COLORS))
+            curve["color"] = int((COLORSET/N_COLORS+1)*random.randrange(0,N_COLORS))
             self.curves.append(curve)
+        self.curves.sort(key=lambda x:x["width"], reverse=True)
         self.fitness = self.get_fitness(truth)
         return self
 
@@ -103,11 +125,11 @@ if __name__ == '__main__':
         if pool[0].fitness > best_image.fitness:
             best_image = pool[0]
             print best_image,time.asctime()
-            best_image.get_image().save(repr(best_image.fitness)[2:10]+".png")
-            if p<4:
-                p+=1
-            else:
-                exit()
+            best_image.get_image().save("GA"+repr(best_image.fitness)[2:10]+".png")
+            # if p<4:
+            #     p+=1
+            # else:
+            #     exit()
     #fitnesses = list(map((lambda x:x.get_fitness(truth)),pool))
     # print pool
     # cim.save('out.png')
