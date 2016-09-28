@@ -11,8 +11,8 @@ ctx = cairo.Context (surface)
 #ctx.scale (WIDTH, HEIGHT) # Normalizing the canvas
 
 pat = cairo.LinearGradient (0.0, 0.0, 0.0, 0.0)
-#pat.add_color_stop_rgba (1, .5, 0, 0, 1) # First stop, 50% opacity
-# pat.add_color_stop_rgba (0, 0.9, 0.7, 0.2, 1) # Last stop, 100% opacity
+pat.add_color_stop_rgba (1, .5, 0, 0, 1) # First stop, 50% opacity
+pat.add_color_stop_rgba (0, 0.9, 0.7, 0.2, 1) # Last stop, 100% opacity
 
 ctx.rectangle (0, 0, 256, 256) # Rectangle(x0, y0, x1, y1)
 ctx.set_source (pat)
