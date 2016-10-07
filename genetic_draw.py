@@ -26,6 +26,8 @@ MUTATION_CURVE_COLOR_BLUE_FACTOR = 0
 MUTATION_CURVE_COLOR_GREEN_FACTOR = 0
 MUTATION_CURVE_COLOR_ALPHA_FACTOR = 0
 
+
+
 pat = cairo.LinearGradient (0.0, 0.0, 0.0, 0.0)
 pat.add_color_stop_rgba (1, .5, 0, 0, 1)
 surface = None
